@@ -30,8 +30,8 @@ export default function DuelStatsPage({ params }: PageProps) {
     });
   }, [params]);
 
-  // Parse duel ID - use 0n as a safe default for hooks
-  const duelId = duelIdStr ? BigInt(duelIdStr) : 0n;
+  // Parse duel ID - use BigInt(0) as a safe default for hooks
+  const duelId = duelIdStr ? BigInt(duelIdStr) : BigInt(0);
 
   // Call all hooks unconditionally
   const { duel, isLoading: duelLoading, refetch: refetchDuel } = useDuelDetails(duelId);
