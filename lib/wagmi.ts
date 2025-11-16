@@ -14,6 +14,9 @@ export const config = createConfig({
   ssr: true,
 });
 
+// Export the chain for easy reference
+export { baseSepolia };
+
 declare module 'wagmi' {
   interface Register {
     config: typeof config;

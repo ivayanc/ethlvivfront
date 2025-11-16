@@ -1,14 +1,36 @@
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { CONTRACTS } from '../contracts';
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useChainId, useSwitchChain } from 'wagmi';
+import { CONTRACTS, BASE_SEPOLIA_CHAIN_ID } from '../contracts';
 import PredictionGameABI from '../abis/PredictionGame.json';
 import DuelManagerABI from '../abis/DuelManager.json';
 import PriceOracleABI from '../abis/PriceOracle.json';
+import { baseSepolia } from '../wagmi';
 
 // Enums from contracts
 export enum DuelDuration {
   ONE_DAY = 0,
   THREE_DAYS = 1,
   SEVEN_DAYS = 2,
+}
+
+// Hook to ensure correct network
+export function useEnsureCorrectNetwork() {
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+
+  const ensureCorrectNetwork = async () => {
+    if (chainId !== BASE_SEPOLIA_CHAIN_ID) {
+      try {
+        await switchChain({ chainId: BASE_SEPOLIA_CHAIN_ID });
+        return true;
+      } catch (error) {
+        console.error('Failed to switch network:', error);
+        throw new Error('Please switch to Base Sepolia network in your wallet');
+      }
+    }
+    return true;
+  };
+
+  return { ensureCorrectNetwork, isCorrectNetwork: chainId === BASE_SEPOLIA_CHAIN_ID, chainId };
 }
 
 // Hook for Oracle
@@ -33,8 +55,9 @@ export function useCurrentPrice(crypto: string) {
 // Hook for making predictions
 export function useMakePrediction() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { ensureCorrectNetwork } = useEnsureCorrectNetwork();
 
-  const makePrediction = (crypto: string, predictedHigher: boolean) => {
+  const makePrediction = async (crypto: string, predictedHigher: boolean) => {
     console.log('useMakePrediction - calling writeContract with:', {
       address: CONTRACTS.PredictionGame,
       functionName: 'makePrediction',
@@ -43,14 +66,19 @@ export function useMakePrediction() {
     });
 
     try {
+      // Ensure we're on the correct network first
+      await ensureCorrectNetwork();
+
       writeContract({
         address: CONTRACTS.PredictionGame as `0x${string}`,
         abi: PredictionGameABI.abi,
         functionName: 'makePrediction',
         args: [crypto, predictedHigher],
+        chainId: BASE_SEPOLIA_CHAIN_ID,
       });
     } catch (err) {
       console.error('Error calling writeContract:', err);
+      throw err;
     }
   };
 
@@ -145,8 +173,9 @@ export function useLeaderboard(limit: number = 10) {
 // Hook for creating a duel
 export function useCreateDuel() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { ensureCorrectNetwork } = useEnsureCorrectNetwork();
 
-  const createDuel = (duration: DuelDuration, stakeAmount: bigint) => {
+  const createDuel = async (duration: DuelDuration, stakeAmount: bigint) => {
     console.log('useCreateDuel - calling writeContract with:', {
       address: CONTRACTS.DuelManager,
       functionName: 'createDuel',
@@ -156,15 +185,20 @@ export function useCreateDuel() {
     });
 
     try {
+      // Ensure we're on the correct network first
+      await ensureCorrectNetwork();
+
       writeContract({
         address: CONTRACTS.DuelManager as `0x${string}`,
         abi: DuelManagerABI.abi,
         functionName: 'createDuel',
         args: [duration],
         value: stakeAmount,
+        chainId: BASE_SEPOLIA_CHAIN_ID,
       });
     } catch (err) {
       console.error('Error calling writeContract:', err);
+      throw err;
     }
   };
 
@@ -186,15 +220,25 @@ export function useCreateDuel() {
 // Hook for joining a duel
 export function useJoinDuel() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { ensureCorrectNetwork } = useEnsureCorrectNetwork();
 
-  const joinDuel = (duelId: bigint, stakeAmount: bigint) => {
-    writeContract({
-      address: CONTRACTS.DuelManager as `0x${string}`,
-      abi: DuelManagerABI.abi,
-      functionName: 'joinDuel',
-      args: [duelId],
-      value: stakeAmount,
-    });
+  const joinDuel = async (duelId: bigint, stakeAmount: bigint) => {
+    try {
+      // Ensure we're on the correct network first
+      await ensureCorrectNetwork();
+
+      writeContract({
+        address: CONTRACTS.DuelManager as `0x${string}`,
+        abi: DuelManagerABI.abi,
+        functionName: 'joinDuel',
+        args: [duelId],
+        value: stakeAmount,
+        chainId: BASE_SEPOLIA_CHAIN_ID,
+      });
+    } catch (err) {
+      console.error('Error joining duel:', err);
+      throw err;
+    }
   };
 
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
@@ -213,14 +257,24 @@ export function useJoinDuel() {
 // Hook for making a duel prediction
 export function useMakeDuelPrediction() {
   const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { ensureCorrectNetwork } = useEnsureCorrectNetwork();
 
-  const makeDuelPrediction = (duelId: bigint, predictedHigher: boolean) => {
-    writeContract({
-      address: CONTRACTS.DuelManager as `0x${string}`,
-      abi: DuelManagerABI.abi,
-      functionName: 'makeDuelPrediction',
-      args: [duelId, predictedHigher],
-    });
+  const makeDuelPrediction = async (duelId: bigint, cryptoSymbol: string, predictedHigher: boolean) => {
+    try {
+      // Ensure we're on the correct network first
+      await ensureCorrectNetwork();
+
+      writeContract({
+        address: CONTRACTS.DuelManager as `0x${string}`,
+        abi: DuelManagerABI.abi,
+        functionName: 'makeDuelPrediction',
+        args: [duelId, cryptoSymbol, predictedHigher],
+        chainId: BASE_SEPOLIA_CHAIN_ID,
+      });
+    } catch (err) {
+      console.error('Error making duel prediction:', err);
+      throw err;
+    }
   };
 
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
@@ -319,5 +373,24 @@ export function useUserStats(address: `0x${string}` | undefined) {
   return {
     stats: data as any,
     isLoading,
+  };
+}
+
+// Hook for getting duel predictions for a specific player
+export function useDuelPredictions(duelId: bigint | undefined, playerAddress: `0x${string}` | undefined) {
+  const { data, isLoading, refetch } = useReadContract({
+    address: CONTRACTS.DuelManager as `0x${string}`,
+    abi: DuelManagerABI.abi,
+    functionName: 'getDuelPredictions',
+    args: duelId !== undefined && playerAddress ? [duelId, playerAddress] : undefined,
+    query: {
+      enabled: duelId !== undefined && !!playerAddress,
+    },
+  });
+
+  return {
+    predictions: (data as any[]) || [],
+    isLoading,
+    refetch,
   };
 }

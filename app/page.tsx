@@ -2,6 +2,7 @@
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { CONTRACTS } from '@/lib/contracts';
 import {
   useCurrentPrice,
@@ -16,6 +17,7 @@ import {
   useUserPredictions,
   usePrediction,
   useUserStats,
+  useEnsureCorrectNetwork,
   DuelDuration
 } from '@/lib/hooks/useContracts';
 import { parseEther, formatEther } from 'viem';
@@ -24,6 +26,7 @@ export default function Home() {
   const { address, isConnected } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
+  const { isCorrectNetwork, chainId, ensureCorrectNetwork } = useEnsureCorrectNetwork();
   const [activeTab, setActiveTab] = useState<'predictions' | 'myPredictions' | 'duels' | 'leaderboard'>('predictions');
 
   // Prediction state
@@ -89,7 +92,20 @@ export default function Home() {
             </h1>
 
             {isConnected ? (
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
+                {/* Network Indicator */}
+                {isCorrectNetwork ? (
+                  <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium rounded-full">
+                    ✓ Base Sepolia
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => ensureCorrectNetwork()}
+                    className="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs font-medium rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-800 transition"
+                  >
+                    ⚠️ Wrong Network - Click to Switch
+                  </button>
+                )}
                 <span className="text-sm text-gray-600 dark:text-gray-300">
                   {address?.slice(0, 6)}...{address?.slice(-4)}
                 </span>
@@ -538,6 +554,7 @@ export default function Home() {
 
 // Component to display individual duel
 function DuelItem({ duelId, currentAddress }: { duelId: bigint; currentAddress: `0x${string}` | undefined }) {
+  const router = useRouter();
   const { duel, isLoading } = useDuelDetails(duelId);
   const { joinDuel, isPending, isSuccess } = useJoinDuel();
 
@@ -617,6 +634,16 @@ function DuelItem({ duelId, currentAddress }: { duelId: bigint; currentAddress: 
           </p>
         </div>
       )}
+
+      {/* View Stats Button */}
+      <div className="mt-3 border-t border-gray-200 dark:border-gray-600 pt-3">
+        <button
+          onClick={() => router.push(`/duels/${duelId.toString()}`)}
+          className="w-full py-2 px-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-lg hover:from-purple-600 hover:to-blue-600 transition font-semibold text-sm"
+        >
+          📊 View Detailed Statistics
+        </button>
+      </div>
     </div>
   );
 }
