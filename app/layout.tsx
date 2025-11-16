@@ -19,13 +19,13 @@ export const metadata: Metadata = {
   other: {
     'fc:miniapp': JSON.stringify({
       version: 'next',
-      imageUrl: 'https://your-app.vercel.app/logo.png',
+      imageUrl: 'https://ethlvivfront.vercel.app/logo.png',
       button: {
         title: 'Play Now',
         action: {
           type: 'launch_miniapp',
           name: 'Crypto Prediction Duels',
-          url: 'https://your-app.vercel.app'
+          url: 'https://ethlvivfront.vercel.app'
         }
       }
     })

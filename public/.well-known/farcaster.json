@@ -24,6 +24,6 @@
     "ogTitle": "Crypto Prediction Duels",
     "ogDescription": "Test your crypto prediction skills and challenge friends in real-time duels!",
     "ogImageUrl": "https://ethlvivfront.vercel.app/logo.png",
-    "noindex": true
+    "noindex": false
   }
 }
