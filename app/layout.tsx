@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Crypto Prediction Duels",
+  title: "Degen Duels",
   description: "Predict cryptocurrency prices and challenge players!",
   other: {
     'fc:miniapp': JSON.stringify({
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
         title: 'Play Now',
         action: {
           type: 'launch_miniapp',
-          name: 'Crypto Prediction Duels',
+          name: 'Degen Duels',
           url: 'https://ethlvivfront.vercel.app'
         }
       }

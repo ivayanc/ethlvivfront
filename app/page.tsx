@@ -28,6 +28,7 @@ export default function Home() {
   const { disconnect } = useDisconnect();
   const { isCorrectNetwork, chainId, ensureCorrectNetwork } = useEnsureCorrectNetwork();
   const [activeTab, setActiveTab] = useState<'predictions' | 'myPredictions' | 'duels' | 'leaderboard'>('predictions');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Prediction state
   const crypto = 'ETH';
@@ -81,47 +82,83 @@ export default function Home() {
     createDuel(duelDuration, parseEther(duelStake));
   };
 
+  const handleCopyAddress = () => {
+    if (typeof window !== 'undefined' && address) {
+      navigator.clipboard.writeText(address);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 overflow-x-hidden" suppressHydrationWarning>
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <header className="bg-white dark:bg-gray-800 shadow-sm" suppressHydrationWarning>
+        <div className="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 overflow-x-hidden">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              🎯 Crypto Prediction Duels
+              🎯 Degen Duels
             </h1>
 
             {isConnected ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 {/* Network Indicator */}
                 {isCorrectNetwork ? (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 text-xs font-medium rounded-full">
-                    ✓ Base Sepolia
-                  </span>
+                  <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-green-400 to-emerald-500 text-white text-xs font-semibold rounded-full shadow-sm">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Base Sepolia</span>
+                  </div>
                 ) : (
                   <button
                     onClick={() => ensureCorrectNetwork()}
-                    className="px-3 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 text-xs font-medium rounded-full hover:bg-yellow-200 dark:hover:bg-yellow-800 transition"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-semibold rounded-full hover:from-yellow-500 hover:to-orange-600 transition shadow-sm"
                   >
-                    ⚠️ Wrong Network - Click to Switch
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                    <span>Switch Network</span>
                   </button>
                 )}
-                <span className="text-sm text-gray-600 dark:text-gray-300">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </span>
+
+                {/* Wallet Address */}
+                <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg shadow-md">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span className="text-sm font-mono font-semibold text-white">
+                    {address?.slice(0, 6)}...{address?.slice(-4)}
+                  </span>
+                  <button
+                    onClick={handleCopyAddress}
+                    className="p-1 hover:bg-purple-400 rounded transition"
+                    title="Copy address"
+                  >
+                    <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Disconnect Button */}
                 <button
                   onClick={() => disconnect()}
-                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
+                  className="p-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition"
+                  title="Disconnect"
                 >
-                  Disconnect
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
                 </button>
               </div>
             ) : (
               <button
                 onClick={() => connect({ connector: connectors[0] })}
-                className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition shadow-md font-semibold"
               >
-                Connect Wallet
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span>Connect Wallet</span>
               </button>
             )}
           </div>
@@ -133,7 +170,7 @@ export default function Home() {
           <div className="text-center py-20">
             <div className="mb-8">
               <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                Welcome to Crypto Prediction Duels!
+                Welcome to Degen Duels!
               </h2>
               <p className="text-xl text-gray-600 dark:text-gray-300">
                 Predict crypto prices and challenge other players
@@ -168,20 +205,101 @@ export default function Home() {
 
             <button
               onClick={() => connect({ connector: connectors[0] })}
-              className="px-8 py-4 bg-blue-500 text-white text-lg rounded-lg hover:bg-blue-600 transition shadow-lg"
+              className="px-8 py-4 bg-purple-500 text-white text-lg rounded-lg hover:bg-purple-600 transition shadow-lg"
             >
               Connect Wallet to Start
             </button>
           </div>
         ) : (
           <div>
-            {/* Tabs */}
-            <div className="flex gap-4 mb-6 overflow-x-auto">
+            {/* Mobile Menu Button */}
+            <div className="md:hidden mb-4">
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="w-full flex items-center justify-between px-6 py-3 bg-purple-500 text-white rounded-lg font-semibold"
+              >
+                <span>
+                  {activeTab === 'predictions' && '📈 Predictions'}
+                  {activeTab === 'myPredictions' && '📊 My Predictions'}
+                  {activeTab === 'duels' && '⚔️ Duels'}
+                  {activeTab === 'leaderboard' && '🏆 Leaderboard'}
+                </span>
+                <svg
+                  className={`w-5 h-5 transition-transform ${mobileMenuOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Mobile Dropdown Menu */}
+              {mobileMenuOpen && (
+                <div className="mt-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                  <button
+                    onClick={() => {
+                      setActiveTab('predictions');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full px-6 py-3 text-left font-semibold transition ${
+                      activeTab === 'predictions'
+                        ? 'bg-purple-500 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    📈 Predictions
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('myPredictions');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full px-6 py-3 text-left font-semibold transition ${
+                      activeTab === 'myPredictions'
+                        ? 'bg-purple-500 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    📊 My Predictions
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('duels');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full px-6 py-3 text-left font-semibold transition ${
+                      activeTab === 'duels'
+                        ? 'bg-purple-500 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    ⚔️ Duels
+                  </button>
+                  <button
+                    onClick={() => {
+                      setActiveTab('leaderboard');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full px-6 py-3 text-left font-semibold transition ${
+                      activeTab === 'leaderboard'
+                        ? 'bg-purple-500 text-white'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    🏆 Leaderboard
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Tabs */}
+            <div className="hidden md:flex gap-4 mb-6 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('predictions')}
                 className={`px-6 py-3 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'predictions'
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-purple-500 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}
               >
@@ -191,7 +309,7 @@ export default function Home() {
                 onClick={() => setActiveTab('myPredictions')}
                 className={`px-6 py-3 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'myPredictions'
-                    ? 'bg-blue-500 text-white'
+                    ? 'bg-purple-500 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}
               >
@@ -211,7 +329,7 @@ export default function Home() {
                 onClick={() => setActiveTab('leaderboard')}
                 className={`px-6 py-3 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'leaderboard'
-                    ? 'bg-orange-500 text-white'
+                    ? 'bg-purple-500 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
                 }`}
               >
@@ -226,7 +344,7 @@ export default function Home() {
                   <h2 className="text-2xl font-bold mb-6">Make a Prediction</h2>
 
                   {/* Current Price */}
-                  <div className="mb-6 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white">
+                  <div className="mb-6 p-4 bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg text-white">
                     <p className="text-sm opacity-90 mb-1">Current ETH Price</p>
                     <p className="text-3xl font-bold">
                       {priceLoading ? (
@@ -240,7 +358,7 @@ export default function Home() {
                   </div>
 
                   {/* User Score */}
-                  <div className="mb-6 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                  <div className="mb-6 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       Your Score: <span className="font-bold text-lg">{score} points</span>
                     </p>
@@ -248,28 +366,28 @@ export default function Home() {
 
                   {/* Active Prediction - Blocking Message */}
                   {prediction && prediction.isActive && (
-                    <div className="mb-6 p-5 bg-gradient-to-r from-orange-500 to-red-500 border-2 border-orange-600 rounded-lg text-white shadow-lg">
+                    <div className="mb-6 p-5 bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
                       <div className="flex items-start gap-3">
                         <div className="text-3xl">⚠️</div>
                         <div className="flex-1">
-                          <h3 className="font-bold text-xl mb-2">
+                          <h3 className="font-bold text-xl mb-2 text-gray-900 dark:text-white">
                             Active Prediction in Progress
                           </h3>
-                          <div className="bg-white/20 backdrop-blur-sm rounded p-3 mb-3">
-                            <p className="text-sm font-semibold mb-1">
+                          <div className="bg-gray-200 dark:bg-gray-600 rounded p-3 mb-3">
+                            <p className="text-sm font-semibold mb-1 text-gray-900 dark:text-white">
                               Direction: {prediction.predictedHigher ? '📈 Higher' : '📉 Lower'}
                             </p>
-                            <p className="text-sm mb-1">
+                            <p className="text-sm mb-1 text-gray-900 dark:text-white">
                               Start Price: <strong>${(Number(prediction.startPrice) / 1e8).toFixed(2)}</strong>
                             </p>
-                            <p className="text-sm opacity-90">
+                            <p className="text-sm text-gray-700 dark:text-gray-300">
                               Crypto: <strong>{prediction.cryptoSymbol}</strong>
                             </p>
                           </div>
-                          <p className="text-sm font-semibold">
+                          <p className="text-sm font-semibold text-gray-900 dark:text-white">
                             ⏰ You cannot make a new prediction until this one resolves (in ~24 hours)
                           </p>
-                          <p className="text-xs opacity-90 mt-2">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                             Check the "My Predictions" tab to see all your predictions
                           </p>
                         </div>
@@ -319,7 +437,7 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="mt-6 p-4 bg-blue-50 dark:bg-gray-700 rounded">
+                  <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       <strong>Contract:</strong> {CONTRACTS.PredictionGame}
                     </p>
@@ -337,21 +455,21 @@ export default function Home() {
                   {/* Stats Summary */}
                   {stats && (
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
-                        <p className="text-2xl font-bold">{Number(stats.totalPredictions)}</p>
+                        <p className="text-2xl font-bold text-purple-600">{Number(stats.totalPredictions)}</p>
                       </div>
-                      <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Correct</p>
-                        <p className="text-2xl font-bold text-green-600">{Number(stats.correctPredictions)}</p>
+                        <p className="text-2xl font-bold text-purple-600">{Number(stats.correctPredictions)}</p>
                       </div>
-                      <div className="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Incorrect</p>
-                        <p className="text-2xl font-bold text-red-600">{Number(stats.incorrectPredictions)}</p>
+                        <p className="text-2xl font-bold text-purple-600">{Number(stats.incorrectPredictions)}</p>
                       </div>
-                      <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg">
+                      <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
                         <p className="text-sm text-gray-600 dark:text-gray-400">Accuracy</p>
-                        <p className="text-2xl font-bold text-yellow-600">
+                        <p className="text-2xl font-bold text-purple-600">
                           {stats.totalPredictions > 0
                             ? `${((Number(stats.correctPredictions) / Number(stats.totalPredictions)) * 100).toFixed(1)}%`
                             : '0%'}
@@ -368,7 +486,7 @@ export default function Home() {
                       </p>
                       <button
                         onClick={() => setActiveTab('predictions')}
-                        className="mt-4 px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                        className="mt-4 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition"
                       >
                         Make Prediction
                       </button>
@@ -388,33 +506,33 @@ export default function Home() {
                   <h2 className="text-2xl font-bold mb-6">Create a Duel</h2>
 
                   {/* Create Duel Form */}
-                  <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg p-6 text-white mb-6">
-                    <h3 className="text-xl font-bold mb-4">Challenge Another Player</h3>
+                  <div className="bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-lg p-6 mb-6">
+                    <h3 className="text-xl font-bold mb-4 text-white">Challenge Another Player</h3>
 
                     {/* Stake Amount */}
                     <div className="mb-4">
-                      <label className="block text-sm mb-2 opacity-90">Stake Amount (ETH)</label>
+                      <label className="block text-sm mb-2 text-white">Stake Amount (ETH)</label>
                       <input
                         type="number"
                         step="0.001"
                         min="0.001"
                         value={duelStake}
                         onChange={(e) => setDuelStake(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg text-gray-900 font-semibold"
+                        className="w-full px-4 py-2 rounded-lg bg-gray-600 text-white font-semibold placeholder-gray-300"
                         placeholder="0.001"
                       />
-                      <p className="text-xs opacity-75 mt-1">
+                      <p className="text-xs text-white mt-1">
                         Winner takes {(parseFloat(duelStake) * 2 * 0.97).toFixed(4)} ETH (after 3% fee)
                       </p>
                     </div>
 
                     {/* Duration */}
                     <div className="mb-4">
-                      <label className="block text-sm mb-2 opacity-90">Duration</label>
+                      <label className="block text-sm mb-2 text-white">Duration</label>
                       <select
                         value={duelDuration}
                         onChange={(e) => setDuelDuration(parseInt(e.target.value) as DuelDuration)}
-                        className="w-full px-4 py-2 rounded-lg text-gray-900 font-semibold"
+                        className="w-full px-4 py-2 rounded-lg bg-gray-600 text-white font-semibold"
                       >
                         <option value={DuelDuration.ONE_DAY}>24 Hours</option>
                         <option value={DuelDuration.THREE_DAYS}>3 Days</option>
@@ -426,7 +544,7 @@ export default function Home() {
                     <button
                       onClick={handleCreateDuel}
                       disabled={isCreatingDuel}
-                      className="w-full py-3 bg-white text-purple-600 rounded-lg hover:bg-gray-100 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-3 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition font-bold disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isCreatingDuel ? '⏳ Creating Duel...' : '⚔️ Create Duel'}
                     </button>
@@ -528,7 +646,7 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="mt-6 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <div className="mt-6 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                     <p className="text-sm text-gray-600 dark:text-gray-300">
                       <strong>Scoring:</strong> Earn 10 points for each correct prediction. Make more predictions to climb the leaderboard!
                     </p>
@@ -537,14 +655,6 @@ export default function Home() {
               )}
             </div>
 
-            <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-              <h3 className="font-bold text-green-800 dark:text-green-200 mb-2">
-                ✅ Fully Functional
-              </h3>
-              <p className="text-sm text-green-700 dark:text-green-300">
-                All smart contracts are deployed and integrated! Connect your wallet to start making predictions and creating duels on Base Sepolia.
-              </p>
-            </div>
           </div>
         )}
       </main>
