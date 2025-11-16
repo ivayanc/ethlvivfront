@@ -179,7 +179,7 @@ export default function DuelStatsPage({ params }: PageProps) {
 
   const hasOpponent = duel.opponent && duel.opponent !== '0x0000000000000000000000000000000000000000';
   const stakeAmount = duel.stakeAmount ? formatEther(duel.stakeAmount) : '0';
-  const totalPot = duel.stakeAmount ? formatEther(BigInt(duel.stakeAmount) * 2n) : '0';
+  const totalPot = duel.stakeAmount ? formatEther(BigInt(duel.stakeAmount) * BigInt(2)) : '0';
   const durationNames = ['24 Hours', '3 Days', '7 Days'];
   const durationName = duel.duration !== undefined ? durationNames[Number(duel.duration)] : 'Unknown';
   const statusNames = ['Open', 'Active', 'Ended', 'Resolved'];
