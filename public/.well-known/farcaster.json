@@ -1,0 +1,29 @@
+{
+  "accountAssociation": {
+    "header": "",
+    "payload": "",
+    "signature": ""
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "Crypto Prediction Duels",
+    "subtitle": "Predict prices, challenge friends",
+    "description": "Test your crypto prediction skills! Make free predictions on ETH price movements, climb the leaderboard, or challenge other players in high-stakes duels with real ETH rewards.",
+    "homeUrl": "https://your-app.vercel.app",
+    "iconUrl": "https://your-app.vercel.app/logo.png",
+    "splashImageUrl": "https://your-app.vercel.app/logo.png",
+    "splashBackgroundColor": "#0f172a",
+    "webhookUrl": "https://your-app.vercel.app/api/webhook",
+    "screenshotUrls": [
+      "https://your-app.vercel.app/logo.png"
+    ],
+    "primaryCategory": "gaming",
+    "tags": ["crypto", "predictions", "duels", "ethereum", "defi"],
+    "heroImageUrl": "https://your-app.vercel.app/logo.png",
+    "tagline": "Predict. Duel. Win.",
+    "ogTitle": "Crypto Prediction Duels",
+    "ogDescription": "Test your crypto prediction skills and challenge friends in real-time duels!",
+    "ogImageUrl": "https://your-app.vercel.app/logo.png",
+    "noindex": true
+  }
+}
